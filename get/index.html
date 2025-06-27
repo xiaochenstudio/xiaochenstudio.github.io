@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兑奖系统 - 小陈工作室</title>
+    <style>
+        body {
+    font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(45deg, #f5f5f5, #ffffff);
+    background-size: 400% 400%;
+    animation: gradientBackground 15s ease infinite;
+    color: #333;
+    text-align: center;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        header {
+            padding: 2rem 0;
+            border-bottom: none;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            letter-spacing: -0.5px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: rgba(255,255,255,0.85);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0.8rem;
+            border: 1px solid #333;
+            border-radius: 2px;
+            background-color: #000;
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .btn:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+        }
+
+
+        .btn:hover {
+            background-color: white;
+            color: black;
+        }
+
+        #loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            padding: 20px;
+            background-color: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 15px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .redemption-form {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.9);
+        }
+
+        .form-group {
+            margin: 1rem 0;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        #result-area {
+            margin-top: 2rem;
+            padding: 1rem;
+            min-height: 100px;
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.9);
+            display: none;
+        }
+
+        .product-item {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-bottom: 1px dashed #eee;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animated {
+            animation: fadeIn 1.5s;
+        }
+
+
+    </style>
+</head>
+<body>
+    <header class="animated">
+        <h1>小陈工作室 - 兑奖系统</h1>
+        <p>输入兑换码获取您的专属福利</p>
+    </header>
+    <div class="container animated">
+        <div class="redemption-form">
+            <h2>兑换中心</h2>
+            <div class="form-group">
+                <label for="redeem-code">兑换码:</label>
+                <input type="text" id="redeem-code" placeholder="请输入兑换码">
+            </div>
+            <button id="redeem-btn" class="btn">立即兑换</button>
+        </div>
+
+        <div id="result-area">
+            <h3>兑换结果</h3>
+            <div id="result-content"></div>
+        </div>
+
+        <a href="../index.html" class="btn">返回首页</a>
+    </div>
+
+    <script>
+        // Gitee配置信息
+        const GITEE_CONFIG = {
+            owner: "damian2021",
+            repo: "sever",
+            path: "兑奖数据.txt",
+            token: "643752d7fb5c0a61145eb848cd4ff788"
+        };
+
+        // 页面加载淡入效果
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM加载完成，开始初始化页面');
+            document.body.style.opacity = '1';
+             
+            // 添加加载指示器
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.id = 'loading-indicator';
+            loadingIndicator.innerHTML = '正在加载数据，请稍候...';
+            document.body.prepend(loadingIndicator);
+             
+            // 页面加载完成后隐藏加载指示器
+            setTimeout(() => {
+                loadingIndicator.style.display = 'none';
+            }, 500);
+        });
+
+        // 兑换功能
+        document.getElementById('redeem-btn').addEventListener('click', async () => {
+            const code = document.getElementById('redeem-code').value.trim();
+            const resultArea = document.getElementById('result-area');
+            const resultContent = document.getElementById('result-content');
+
+            if (!code) {
+                resultContent.innerHTML = '<p style="color: red;">请输入兑换码后再试</p>';
+                resultArea.style.display = 'block';
+                return;
+            }
+
+            try {
+                resultContent.innerHTML = '<div class="spinner"></div><p>正在验证兑换码...</p>';
+            // 从Gitee获取兑换数据并验证
+            const url = `https://gitee.com/api/v5/repos/${GITEE_CONFIG.owner}/${GITEE_CONFIG.repo}/contents/${encodeURIComponent(GITEE_CONFIG.path)}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${GITEE_CONFIG.token}`,
+                        'Accept': 'application/vnd.gitee.raw'
+                    }
+                });
+
+                if (!response.ok) throw new Error('无法连接到服务器，请稍后重试');
+                // 解析Gitee API JSON响应
+                const responseData = await response.json();
+                console.log('Gitee API响应数据:', responseData);
+                
+                // 检查是否包含content字段
+                if (!responseData.content) {
+                    throw new Error('Gitee响应缺少content字段，请检查文件配置');
+                }
+                
+                // 解码base64内容
+                const decodedBytes = Uint8Array.from(atob(responseData.content), c => c.charCodeAt(0));
+                const data = new TextDecoder('utf-8').decode(decodedBytes);
+                console.log('解码后的兑换数据:', data);
+                
+                if (!data.trim()) {
+                    throw new Error('兑换数据为空，请检查仓库中的文件内容');
+                }
+                console.log('原始兑换数据:', data);
+                console.log('数据长度:', data.length);
+                console.log('数据前100字符:', data.substring(0, 100));
+                const lines = data.split('\n').filter(line => line.trim() !== '');
+                console.log('解析到的兑换码行数:', lines.length);
+                let found = false;
+
+                for (const line of lines) {
+                    const parts = line.split('::');
+                    const productKey = parts[0]?.trim();
+                    console.log(`比较兑换码: 输入=[${code}], 文件=[${productKey}]`);
+                    if (parts.length >= 3 && productKey === code) {
+                        const productName = parts[1].trim();
+                        const productContent = parts.slice(2).join('::').trim();
+                        resultContent.innerHTML = `
+                            <p>兑换码"${code}"验证成功！</p>
+                            <h4>${productName}</h4>
+                            <div>${productContent}</div>
+                        `;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    throw new Error(`兑换码 '${code}' 无效或已过期。\n请检查：1) 兑换码是否正确（区分大小写） 2) 查看浏览器控制台(按F12)获取详细验证过程`);
+                }
+                resultArea.style.display = 'block';
+
+            } catch (error) {
+                resultContent.innerHTML = `<p style="color: red;">${error.message}</p>`;
+                resultArea.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
