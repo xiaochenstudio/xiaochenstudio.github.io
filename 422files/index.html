@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Minecraft 422版本下载</title>
+    <style>
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        body.animated {
+            @font-face {
+            font-family: 'Minecraft';
+            src: url('mojang.png') format('woff2');
+        }
+        body.animated {
+            font-family: 'Minecraft', sans-serif;
+color: #8B0000;
+text-shadow: 0 0 15px #FF0000, 0 0 25px #FF0000, 2px 2px #000000;
+            animation: glitch 1s infinite;
+            margin: 0;
+            padding: 2rem;
+            text-align: center;
+            background: #000 url('crash_logo.png') repeat center center fixed, linear-gradient(rgba(139,0,0,0.5), rgba(0,0,0,0.8)); background-blend-mode: overlay; background-size: 150px 150px, cover;
+background-size: cover;
+            animation: static 0.5s steps(5) infinite, flicker 2s infinite alternate;
+        @keyframes static {
+            0% { background-position: 0 0; }
+            50% { background-position: 5px 5px; }
+            100% { background-position: 10px 10px; }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+            70% { opacity: 0.9; }
+        }
+            filter: grayscale(100%) contrast(300%) brightness(0.6) sepia(0.5);
+            background-blend-mode: multiply;
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+        }
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header.animated {
+            animation: fadeIn 1.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: 2px solid #8B0000;
+            box-shadow: 0 0 20px #FF0000, inset 0 0 15px #FF0000;
+            border-radius: 0;
+            background-color: rgba(0,0,0,0.85);
+            color: #FF0000;
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            overflow: hidden;
+            position: relative;
+            width: 280px;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: white;
+            color: black;
+            border-color: #000;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; min-height: 100vh; background: #ffffff; color: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-x: hidden;">
+    <canvas id="particle-canvas"></canvas>
+    <header class="animated">
+        <h1 style="padding: 15px; animation: pulse 1s infinite alternate; margin: 0 auto; width: 100%; text-align: center;">我 的 世 界 错 误 422 下 载</h1>
+    </header>
+    
+    <div class="crash-logo" style="text-align: center; margin-bottom: 20px;">
+            <img src="crash_logo.png" style="max-width: 200px; height: auto;" />
+        </div>
+        <div class="button-container">
+        <div class="image-preview" style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
+              <img src="1.png" style="max-width: 150px; height: auto; cursor: pointer;" onclick="openModal('1.png')" />
+              <img src="2.png" style="max-width: 150px; height: auto; cursor: pointer;" onclick="openModal('2.png')" />
+              <img src="3.png" style="max-width: 150px; height: auto; cursor: pointer;" onclick="openModal('3.png')" />
+              <img src="4.png" style="max-width: 150px; height: auto; cursor: pointer;" onclick="openModal('4.png')" />
+              <img src="5.png" style="max-width: 150px; height: auto; cursor: pointer;" onclick="openModal('5.png')" />
+              <img src="6.png" style="max-width: 150px; height: auto; cursor: pointer;" onclick="openModal('6.png')" />
+          </div>
+          <div style="display: flex; gap: 15px; margin-top: 30px; justify-content: center;">
+              <a href="minecraft 422.zip" class="btn" download style="background: linear-gradient(135deg, #00f5ff, #ff00e5); box-shadow: 0 6px 20px rgba(0,245,255,0.5); transition: all 0.3s ease; border-radius: 25px; padding: 12px 24px; font-weight: bold;">立即下载</a>
+              <a href="../index.html" class="btn" style="background: linear-gradient(135deg, #ff00e5, #00f5ff); box-shadow: 0 6px 20px rgba(255,0,229,0.5); transition: all 0.3s ease; border-radius: 25px; padding: 12px 24px; font-weight: bold;">返回首页</a>
+          </div>
+      </div>
+    <script>
+        // 粒子线条背景效果
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 50;
+        const maxDistance = 150;
+        const particleSize = 2;
+        const lineWidth = 1;
+        let mouse = { x: null, y: null, radius: 150 };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = particleSize;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    const dx = particles[a].x - particles[b].x;
+                    const dy = particles[a].y - particles[b].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.strokeStyle = 'rgba(255, 0, 0, 0.2)';
+                        ctx.lineWidth = lineWidth;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        initParticles();
+        draw();
+    </script>
+<!-- 图片放大模态框 -->
+    <div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;">
+        <span onclick="closeModal()" style="position: absolute; top: 20px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
+        <img id="modalImage" style="max-width: 90%; max-height: 90%;" />
+    </div>
+
+    <script>
+        // 打开模态框并显示图片
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = imageSrc;
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // 点击模态框背景也关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+    </body>
+        }
+    </style>
+</body>
+</html>
