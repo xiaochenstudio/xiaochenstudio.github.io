@@ -1,0 +1,11 @@
+body{ font-family:'Times New Roman'; font-size:1em; }
+ul, ol{ margin-top: 0; margin-bottom: 0; }
+   ins{color:#2E97D3;}    del{color:#FF0000;} 
+.Normal{text-align:justify;page-break-inside:auto;page-break-after:auto;page-break-before:auto;margin-top:0pt;margin-bottom:0pt;margin-left:0pt;text-indent:0pt;border-top-style: none;border-left-style: none;border-right-style: none;border-bottom-style: none;font-size:10.5pt;font-family:等线;mso-fareast-font-family:等线;mso-bidi-font-family:Arial;lang:EN-US;mso-fareast-language:ZH-CN;mso-ansi-language:AR-SA;}
+.Default-Paragraph-Font{font-size:10.5pt;font-family:等线;mso-fareast-font-family:等线;mso-bidi-font-family:Arial;lang:EN-US;mso-fareast-language:ZH-CN;mso-ansi-language:AR-SA;}
+.Normal-Table{}
+.No-List{}
+.Hyperlink{color:#0563C1;font-size:10.5pt;font-family:等线;mso-fareast-font-family:等线;mso-bidi-font-family:Arial;lang:EN-US;mso-fareast-language:ZH-CN;mso-ansi-language:AR-SA;text-decoration: underline;}
+.Unresolved-Mention{color:#605E5C;font-size:10.5pt;font-family:等线;mso-fareast-font-family:等线;mso-bidi-font-family:Arial;lang:EN-US;mso-fareast-language:ZH-CN;mso-ansi-language:AR-SA;background-color:#E1DFDD;}
+.List-Paragraph{text-align:justify;page-break-inside:auto;page-break-after:auto;page-break-before:auto;margin-top:0pt;margin-bottom:0pt;margin-left:0pt;text-indent:21pt;border-top-style: none;border-left-style: none;border-right-style: none;border-bottom-style: none;font-size:10.5pt;font-family:等线;mso-fareast-font-family:等线;mso-bidi-font-family:Arial;lang:EN-US;mso-fareast-language:ZH-CN;mso-ansi-language:AR-SA;}
+.FollowedHyperlink{color:#954F72;font-size:10.5pt;font-family:等线;mso-fareast-font-family:等线;mso-bidi-font-family:Arial;lang:EN-US;mso-fareast-language:ZH-CN;mso-ansi-language:AR-SA;text-decoration: underline;}
