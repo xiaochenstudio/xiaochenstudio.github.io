@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft 资源下载</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #ff000000 !important;
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+            color: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        body.animated {
+            opacity: 1;
+        }
+        
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .animated {
+            animation: fadeIn 1.5s;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-btn {
+            display: block;
+            width: fit-content;
+            margin: 2rem auto;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0.5rem;
+            background: rgba(76, 175, 80, 0.8);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            background: rgba(69, 160, 73, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .btn-422 {
+            background: rgba(244, 67, 54, 0.8);
+        }
+        .btn-422:hover {
+            background: rgba(211, 47, 47, 0.9);
+        }
+    </style>
+</head>
+<body class="animated">
+    <canvas id="particle-canvas"></canvas>
+    <div class="container">
+        <div class="section">
+            <h2>加入我们的Minecraft服务器</h2>
+            <p>点击下方按钮获取服务器地址和加入方式</p>
+            <a href="https://www.mclists.cn/server/8400.html" class="btn" target="_blank">加入服务器</a>
+            <a href="help.html" class="btn" target="_blank">帮助文档</a>
+        </div>
+        
+        <div class="section">
+            <h2>Minecraft 422错误版本下载</h2>
+            <p>点击下方按钮下载特殊版本</p>
+            <a href="422/index.html" class="btn btn-422">下载422版本</a>
+        </div>
+        <a href="index.html" class="btn back-btn">返回首页</a>
+    </div>
+    <script>
+        // 粒子线条背景效果
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 50;
+        const maxDistance = 150; // 粒子连线最大距离
+        const particleSize = 2; // 粒子大小
+        const lineWidth = 1; // 线条宽度
+        let mouse = { x: null, y: null, radius: 150 };
+
+        // 设置canvas尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = particleSize;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+            }
+
+            update() {
+                // 粒子缓慢移动
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // 边界检测
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
+            }
+        }
+
+        // 初始化粒子
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // 绘制粒子和连线
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 更新并绘制所有粒子
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // 绘制粒子间连线
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    const dx = particles[a].x - particles[b].x;
+                    const dy = particles[a].y - particles[b].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // 鼠标附近的粒子连线更粗
+                    const isNearMouse = Math.hypot(particles[a].x - mouse.x, particles[a].y - mouse.y) < mouse.radius ||
+                                     Math.hypot(particles[b].x - mouse.x, particles[b].y - mouse.y) < mouse.radius;
+                    const lineOpacity = isNearMouse ? 0.8 : 0.2;
+                    const lineThickness = isNearMouse ? lineWidth + 0.5 : lineWidth;
+
+                    if (distance < maxDistance) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.strokeStyle = `rgba(0, 0, 0, ${lineOpacity})`;
+                        ctx.lineWidth = lineThickness;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // 鼠标移动事件
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        // 初始化并开始动画
+        initParticles();
+        draw();
+    </script>
+</body>
+</html>

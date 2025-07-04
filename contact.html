@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 小陈工作室</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #f5f5f5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+            color: black;
+            text-align: center;
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        header {
+            padding: 2rem 0;
+            border-bottom: none;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .contact-info {
+            margin: 2rem 0;
+            line-height: 2;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0.8rem;
+            border: 1px solid #333;
+            border-radius: 2px;
+            background-color: #000;
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .btn:hover {
+            background-color: #333;
+            transform: translateY(-2px);
+        }
+
+
+
+        .btn:hover {
+            background-color: white;
+            color: black;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(200,200,200,0.5);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.5s;
+        }
+
+        .btn:active::after {
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>联系我们</h1>
+    </header>
+    <div class="container">
+        <div class="contact-info">
+            <p>邮箱: orange38665@qq.com</p>
+            <p>微信: orange38665</p>
+        </div>
+        <a href="index.html" class="btn">返回首页</a>
+    </div>
+
+<canvas id="particle-canvas"></canvas>
+    <script>
+        // 粒子线条背景效果
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 50;
+        const maxDistance = 150;
+        const particleSize = 2;
+        const lineWidth = 1;
+        let mouse = { x: null, y: null, radius: 150 };
+
+        // 设置canvas尺寸
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = particleSize;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // 边界检测
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        // 初始化粒子
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // 绘制粒子和连线
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 更新并绘制所有粒子
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // 绘制连接线
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a; b < particles.length; b++) {
+                    const dx = particles[a].x - particles[b].x;
+                    const dy = particles[a].y - particles[b].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // 鼠标附近的连线更明显
+                    const isNearMouse = mouse.x && mouse.y && (
+                        Math.hypot(particles[a].x - mouse.x, particles[a].y - mouse.y) < mouse.radius ||
+                        Math.hypot(particles[b].x - mouse.x, particles[b].y - mouse.y) < mouse.radius
+                    );
+                    const opacity = isNearMouse ? 0.8 : 0.2;
+                    const lineThickness = isNearMouse ? lineWidth + 0.5 : lineWidth;
+
+                    if (distance < maxDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 0, 0, ${opacity})`;
+                        ctx.lineWidth = lineThickness;
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // 鼠标事件监听
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // 初始化
+        initParticles();
+        draw();
+
+        // 页面加载淡入效果
+        window.addEventListener('DOMContentLoaded', () => {
+          document.body.style.opacity = '1';
+        });
+
+        // 页面切换平滑过渡
+        document.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            // 忽略外部链接和锚点链接
+            if (href.startsWith('http') || href.startsWith('#')) return;
+            
+            e.preventDefault();
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+              window.location.href = href;
+            }, 500);
+          });
+        });
+    </script>
+    </script>
+</body>
+</html>
